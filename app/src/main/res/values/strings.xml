@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">TapYouTest</string>
+
+    <string name="main_info">Информационный текст\nкоторый отображается на экране приложения</string>
+    <string name="main_number_hint">количество точек</string>
+    <string name="main_button_go">Поехали</string>
+    <string name="main_invalid_number">Введите корректное число</string>
+    <string name="main_points_load_error">Ошибка загрузки точек</string>
+
+    <string name="result_points">Point(%.2f; %.2f)</string>
+    <string name="result_chart_label">Точки</string>
+    <string name="result_save_chart">Сохранить график</string>
+    <string name="result_chart_saved">График сохранён</string>
+    <string name="result_chart_saved_in">График сохранён: %s</string>
+
+    <string name="result_permission_denied">Разрешение не предоставлено</string>
+    <string name="result_save_error">Ошибка сохранения</string>
+    <string name="result_memory_access_error">Ошибка доступа к памяти</string>
+</resources>
