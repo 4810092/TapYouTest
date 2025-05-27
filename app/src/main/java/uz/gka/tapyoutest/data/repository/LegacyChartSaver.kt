@@ -9,6 +9,7 @@ import uz.gka.tapyoutest.domain.model.ChartSaveResult
 import uz.gka.tapyoutest.domain.repository.ChartSaver
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 
 class LegacyChartSaver @Inject constructor(
@@ -26,7 +27,8 @@ class LegacyChartSaver @Inject constructor(
         val file = File(dir, "chart_${System.currentTimeMillis()}.png")
 
         FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            val success = bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            if (!success) throw IOException("Failed to compress and save the bitmap to storage")
         }
 
         MediaScannerConnection.scanFile(
