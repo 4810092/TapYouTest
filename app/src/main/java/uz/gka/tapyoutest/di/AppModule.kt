@@ -11,10 +11,12 @@ import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.BuildConfig
 import uz.gka.tapyoutest.data.mapper.PointMapper
 import uz.gka.tapyoutest.data.remote.ApiService
+import uz.gka.tapyoutest.data.repository.InMemoryPointsCache
 import uz.gka.tapyoutest.data.repository.LegacyChartSaver
 import uz.gka.tapyoutest.data.repository.PointsRepositoryImpl
 import uz.gka.tapyoutest.data.repository.ScopedChartSaver
 import uz.gka.tapyoutest.domain.repository.ChartSaver
+import uz.gka.tapyoutest.domain.repository.PointsCache
 import uz.gka.tapyoutest.domain.repository.PointsRepository
 import javax.inject.Singleton
 
@@ -55,4 +57,8 @@ class AppModule(private val application: App) {
             LegacyChartSaver(context)
         }
     }
+
+    @Provides
+    @Singleton
+    fun providePointRepository(): PointsCache = InMemoryPointsCache()
 }

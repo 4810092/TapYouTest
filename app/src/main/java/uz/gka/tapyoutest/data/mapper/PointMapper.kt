@@ -12,9 +12,7 @@ class PointMapper @Inject constructor() {
     }
 
     fun mapPointDtoToDomain(pointDto: PointDto?): Point? {
-        if (pointDto == null) return null
-        if (pointDto.x == null) return null
-        if (pointDto.y == null) return null
+        if (pointDto?.x == null || pointDto.y == null) return null
         return Point(pointDto.x, pointDto.y)
     }
 }

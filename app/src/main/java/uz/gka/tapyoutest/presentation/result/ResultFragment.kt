@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -35,9 +34,6 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
         App.component.getViewModelFactory()
     }
 
-    private val args: ResultFragmentArgs by navArgs()
-    private val points: List<Point> get() = args.points.toList()
-
     private lateinit var requestStoragePermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,8 +50,6 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupTable(points)
-        setupChart(points)
         initListeners()
         initObservers()
     }
@@ -86,6 +80,33 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
 
     private fun initObservers() {
         viewModel.effect.onEach { onEffect(it) }.launchIn(viewLifecycleOwner.lifecycleScope)
+        viewModel.state.onEach { onState(it) }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun onState(state: ResultState) = when (state) {
+        ResultState.Initial -> Unit
+        is ResultState.PointsData -> setData(state.points)
+    }
+
+    private fun setData(points: List<Point>) {
+        setupTable(points)
+        setupChart(points)
+    }
+
+    private fun onEffect(effect: ResultEffect) {
+        when (effect) {
+            ResultEffect.MemoryAccessError -> showToast(R.string.result_memory_access_error)
+
+            ResultEffect.SaveError -> showToast(R.string.result_save_error)
+
+            ResultEffect.Saved -> showToast(R.string.result_chart_saved)
+
+            is ResultEffect.SavedIn -> showToast(
+                getString(
+                    R.string.result_chart_saved_in, effect.savedPath
+                )
+            )
+        }
     }
 
     private fun setupTable(points: List<Point>) = with(binding) {
@@ -125,23 +146,6 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
 
             animateX(300)
             invalidate()
-        }
-    }
-
-
-    private fun onEffect(effect: ResultEffect) {
-        when (effect) {
-            ResultEffect.MemoryAccessError -> showToast(R.string.result_memory_access_error)
-
-            ResultEffect.SaveError -> showToast(R.string.result_save_error)
-
-            ResultEffect.Saved -> showToast(R.string.result_chart_saved)
-
-            is ResultEffect.SavedIn -> showToast(
-                getString(
-                    R.string.result_chart_saved_in, effect.savedPath
-                )
-            )
         }
     }
 

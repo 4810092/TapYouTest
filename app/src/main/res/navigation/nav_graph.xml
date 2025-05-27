@@ -16,9 +16,5 @@
     <fragment
         android:id="@+id/resultFragment"
         android:name="uz.gka.tapyoutest.presentation.result.ResultFragment"
-        android:label="Points Result">
-        <argument
-            android:name="points"
-            app:argType="uz.gka.tapyoutest.domain.model.Point[]" />
-    </fragment>
+        android:label="Points Result" />
 </navigation>

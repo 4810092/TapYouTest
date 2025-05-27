@@ -52,7 +52,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         when (effect) {
             is MainEffect.InvalidNumber -> showInvalidNumberError()
             is MainEffect.Loading -> onLoading(effect.show)
-            is MainEffect.PointsLoaded -> onPointsLoaded(effect.points)
+            is MainEffect.PointsLoaded -> onPointsLoaded()
             is MainEffect.PointsLoadingError -> onPointsLoadingError(effect.message)
         }
     }
@@ -72,8 +72,8 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         binding.etCount.error = getString(R.string.main_invalid_number)
     }
 
-    private fun onPointsLoaded(points: List<Point>) {
-        val action = MainFragmentDirections.actionMainToResult(points.toTypedArray())
+    private fun onPointsLoaded() {
+        val action = MainFragmentDirections.actionMainToResult()
         findNavController().navigate(action)
     }
 }

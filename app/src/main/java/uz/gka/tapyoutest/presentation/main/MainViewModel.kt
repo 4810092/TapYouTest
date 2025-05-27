@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import uz.gka.tapyoutest.domain.repository.PointsCache
 import uz.gka.tapyoutest.domain.usecase.GetPointsUseCase
 import uz.gka.tapyoutest.presentation.main.MainEffect.Loading
 import uz.gka.tapyoutest.presentation.main.MainEffect.PointsLoaded
@@ -13,7 +14,8 @@ import uz.gka.tapyoutest.presentation.main.MainEffect.PointsLoadingError
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-    private val getPointsUseCase: GetPointsUseCase
+    private val getPointsUseCase: GetPointsUseCase,
+    private val pointsCache: PointsCache
 ) : ViewModel() {
 
     private val _effect = MutableSharedFlow<MainEffect>(replay = 0)
@@ -31,7 +33,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun loadPoints(count: String) {
+    private fun loadPoints(count: String) {
         if (pointsLoadingJob?.isActive == true) pointsLoadingJob?.cancel()
 
         pointsLoadingJob = viewModelScope.launch {
@@ -44,8 +46,9 @@ class MainViewModel @Inject constructor(
             runCatching {
                 getPointsUseCase(countNum)
             }.onSuccess {
+                pointsCache.save(it)
                 emitEffect(Loading(false))
-                emitEffect(PointsLoaded(it))
+                emitEffect(PointsLoaded)
             }.onFailure {
                 emitEffect(Loading(false))
                 emitEffect(PointsLoadingError(it.message))
