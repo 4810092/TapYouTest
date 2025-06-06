@@ -16,12 +16,7 @@ class MainFragment : MvpAppCompatFragment(R.layout.fragment_main), MainView {
     private val binding by viewBinding(FragmentMainBinding::bind)
 
     private val presenter by moxyPresenter {
-        MainPresenter(
-            App.component.getPointsUseCase(),
-            App.component.inputValidator(),
-            App.component.pointsCache(),
-            App.component.router()
-        )
+        App.component.mainPresenter()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

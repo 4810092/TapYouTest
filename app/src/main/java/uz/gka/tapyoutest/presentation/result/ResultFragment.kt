@@ -28,10 +28,7 @@ class ResultFragment : MvpAppCompatFragment(R.layout.fragment_result), ResultVie
     private val binding by viewBinding(FragmentResultBinding::bind)
 
     private val presenter by moxyPresenter {
-        ResultPresenter(
-            App.component.saveChartUseCase(),
-            App.component.pointsCache()
-        )
+        App.component.resultPresenter()
     }
 
     private lateinit var requestStoragePermissionLauncher: ActivityResultLauncher<String>
