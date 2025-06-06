@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.3"
+cicerone = "7.1"
 dagger = "2.56.2"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
@@ -11,13 +12,17 @@ material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 mpandroidchart = "3.1.0"
-nav_version = "2.9.0"
 kotlinx_serialization = "1.8.1"
 navigationSafeArgsGradlePlugin = "2.9.0"
 retrofit = "3.0.0"
+rxjava2 = "2.2.21"
+rxandroid = "2.1.1"
+room = "2.6.1"
+moxy = "2.2.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+cicerone = { module = "com.github.terrakok:cicerone", version.ref = "cicerone" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
@@ -28,19 +33,24 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "nav_version" }
-androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "nav_version" }
-androidx-navigation-navigation-testing = { group = "androidx.navigation", name = "navigation-testing", version.ref = "nav_version" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx_serialization" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationSafeArgsGradlePlugin" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-adapter-rxjava2 = { module = "com.squareup.retrofit2:adapter-rxjava2", version.ref = "retrofit" }
+rxjava2 = { group = "io.reactivex.rxjava2", name = "rxjava", version.ref = "rxjava2" }
+rxandroid = { group = "io.reactivex.rxjava2", name = "rxandroid", version.ref = "rxandroid" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-rxjava2 = { group = "androidx.room", name = "room-rxjava2", version.ref = "room" }
+moxy = { group = "com.github.moxy-community", name = "moxy-androidx", version.ref = "moxy" }
+moxy-ktx = { group = "com.github.moxy-community", name = "moxy-ktx", version.ref = "moxy" }
+moxy-compiler = { group = "com.github.moxy-community", name = "moxy-compiler", version.ref = "moxy" }
 
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-androidx-navigation-safeargs-kotlin = { id = "androidx.navigation.safeargs.kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize" }

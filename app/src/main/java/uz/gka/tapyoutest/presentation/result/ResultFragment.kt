@@ -10,15 +10,12 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import moxy.MvpAppCompatFragment
+import moxy.ktx.moxyPresenter
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 import uz.gka.tapyoutest.databinding.FragmentResultBinding
@@ -26,12 +23,15 @@ import uz.gka.tapyoutest.domain.model.Point
 import uz.gka.tapyoutest.utils.isDarkTheme
 import uz.gka.tapyoutest.utils.viewBinding
 
-class ResultFragment : Fragment(R.layout.fragment_result) {
+class ResultFragment : MvpAppCompatFragment(R.layout.fragment_result), ResultView {
 
     private val binding by viewBinding(FragmentResultBinding::bind)
 
-    private val viewModel by viewModels<ResultViewModel> {
-        App.component.getViewModelFactory()
+    private val presenter by moxyPresenter {
+        ResultPresenter(
+            App.component.saveChartUseCase(),
+            App.component.pointsCache()
+        )
     }
 
     private lateinit var requestStoragePermissionLauncher: ActivityResultLauncher<String>
@@ -55,7 +55,9 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
     }
 
     private fun submitUiAction(action: ResultUiAction) {
-        viewModel.handleUiAction(action)
+        when (action) {
+            is ResultUiAction.SaveChart -> presenter.onSaveChartClicked(action.chartBitmap)
+        }
     }
 
     private fun checkPermissionAndSave() {
@@ -78,14 +80,10 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
         binding.btnSave.setOnClickListener { checkPermissionAndSave() }
     }
 
-    private fun initObservers() {
-        viewModel.effect.onEach { onEffect(it) }.launchIn(viewLifecycleOwner.lifecycleScope)
-        viewModel.state.onEach { onState(it) }.launchIn(viewLifecycleOwner.lifecycleScope)
-    }
+    private fun initObservers() {}
 
-    private fun onState(state: ResultState) = when (state) {
-        ResultState.Initial -> Unit
-        is ResultState.PointsData -> setData(state.points)
+    override fun showPoints(points: List<Point>) {
+        setData(points)
     }
 
     private fun setData(points: List<Point>) {
@@ -93,20 +91,20 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
         setupChart(points)
     }
 
-    private fun onEffect(effect: ResultEffect) {
-        when (effect) {
-            ResultEffect.MemoryAccessError -> showToast(R.string.result_memory_access_error)
+    override fun showMemoryAccessError() {
+        showToast(R.string.result_memory_access_error)
+    }
 
-            ResultEffect.SaveError -> showToast(R.string.result_save_error)
+    override fun showSaveError() {
+        showToast(R.string.result_save_error)
+    }
 
-            ResultEffect.Saved -> showToast(R.string.result_chart_saved)
+    override fun showChartSaved() {
+        showToast(R.string.result_chart_saved)
+    }
 
-            is ResultEffect.SavedIn -> showToast(
-                getString(
-                    R.string.result_chart_saved_in, effect.savedPath
-                )
-            )
-        }
+    override fun showChartSavedIn(path: String) {
+        showToast(getString(R.string.result_chart_saved_in, path))
     }
 
     private fun setupTable(points: List<Point>) = with(binding) {

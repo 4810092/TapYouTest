@@ -1,20 +1,27 @@
 package uz.gka.tapyoutest.di
 
-import androidx.lifecycle.ViewModelProvider
 import dagger.Component
 import uz.gka.tapyoutest.App
+import uz.gka.tapyoutest.domain.repository.PointsCache
+import uz.gka.tapyoutest.domain.usecase.GetPointsUseCase
+import uz.gka.tapyoutest.domain.usecase.SaveChartUseCase
+import com.github.terrakok.cicerone.Router
+import com.github.terrakok.cicerone.NavigatorHolder
 import javax.inject.Singleton
 
 @Singleton
 @Component(
     modules = [
         AppModule::class,
-        ViewModelModule::class,
     ]
 )
 
 interface AppComponent {
     fun inject(application: App)
 
-    fun getViewModelFactory(): ViewModelProvider.Factory
+    fun router(): Router
+    fun navigatorHolder(): NavigatorHolder
+    fun getPointsUseCase(): GetPointsUseCase
+    fun saveChartUseCase(): SaveChartUseCase
+    fun pointsCache(): PointsCache
 }
