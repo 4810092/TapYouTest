@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.onEach
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 import uz.gka.tapyoutest.databinding.FragmentMainBinding
-import uz.gka.tapyoutest.domain.model.Point
 import uz.gka.tapyoutest.utils.viewBinding
 
 class MainFragment : Fragment(R.layout.fragment_main) {
@@ -54,6 +53,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             is MainEffect.Loading -> onLoading(effect.show)
             is MainEffect.PointsLoaded -> onPointsLoaded()
             is MainEffect.PointsLoadingError -> onPointsLoadingError(effect.message)
+            MainEffect.Initial -> Unit
         }
     }
 
