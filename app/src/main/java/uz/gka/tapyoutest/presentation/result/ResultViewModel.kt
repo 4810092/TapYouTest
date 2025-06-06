@@ -3,12 +3,13 @@ package uz.gka.tapyoutest.presentation.result
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uz.gka.tapyoutest.domain.model.ChartSaveResult
-import uz.gka.tapyoutest.domain.model.Point
 import uz.gka.tapyoutest.domain.repository.PointsCache
 import uz.gka.tapyoutest.domain.usecase.SaveChartUseCase
 import uz.gka.tapyoutest.presentation.result.ResultEffect.MemoryAccessError
@@ -18,7 +19,8 @@ import uz.gka.tapyoutest.presentation.result.ResultState.PointsData
 import javax.inject.Inject
 
 class ResultViewModel @Inject constructor(
-    private val saveChartUseCase: SaveChartUseCase, private val pointsCache: PointsCache
+    private val saveChartUseCase: SaveChartUseCase,
+    pointsCache: PointsCache
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ResultState>(Initial)
@@ -33,10 +35,6 @@ class ResultViewModel @Inject constructor(
 
     private suspend fun emitEffect(effect: ResultEffect) {
         _effect.emit(effect)
-    }
-
-    private fun launchEffect(effect: ResultEffect) = viewModelScope.launch {
-        emitEffect(effect)
     }
 
     private suspend fun emitState(state: ResultState) {
@@ -54,18 +52,20 @@ class ResultViewModel @Inject constructor(
     }
 
     private fun saveChart(chartBitmap: Bitmap) {
-        runCatching {
-            saveChartUseCase(chartBitmap)
-        }.onSuccess { result ->
-            val effect = when (result) {
-                is ChartSaveResult.Legacy -> ResultEffect.SavedIn(result.filePath)
-                ChartSaveResult.Scoped -> ResultEffect.Saved
-            }
-            launchEffect(effect)
-        }.onFailure {
-            when (it) {
-                is IllegalStateException -> launchEffect(MemoryAccessError)
-                else -> launchEffect(SaveError)
+        viewModelScope.launch {
+            runCatching {
+                withContext(Dispatchers.IO) { saveChartUseCase(chartBitmap) }
+            }.onSuccess { result ->
+                val effect = when (result) {
+                    is ChartSaveResult.Legacy -> ResultEffect.SavedIn(result.filePath)
+                    ChartSaveResult.Scoped -> ResultEffect.Saved
+                }
+                emitEffect(effect)
+            }.onFailure {
+                when (it) {
+                    is IllegalStateException -> emitEffect(MemoryAccessError)
+                    else -> emitEffect(SaveError)
+                }
             }
         }
     }
