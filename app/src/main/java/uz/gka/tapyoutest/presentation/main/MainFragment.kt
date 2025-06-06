@@ -9,7 +9,6 @@ import moxy.ktx.moxyPresenter
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 import uz.gka.tapyoutest.databinding.FragmentMainBinding
-import uz.gka.tapyoutest.domain.validator.InputValidator
 import uz.gka.tapyoutest.utils.viewBinding
 
 class MainFragment : MvpAppCompatFragment(R.layout.fragment_main), MainView {
@@ -19,7 +18,7 @@ class MainFragment : MvpAppCompatFragment(R.layout.fragment_main), MainView {
     private val presenter by moxyPresenter {
         MainPresenter(
             App.component.getPointsUseCase(),
-            InputValidator(),
+            App.component.inputValidator(),
             App.component.pointsCache(),
             App.component.router()
         )

@@ -2,6 +2,7 @@ package uz.gka.tapyoutest.di
 
 import dagger.Component
 import uz.gka.tapyoutest.App
+import uz.gka.tapyoutest.domain.validator.InputValidator
 import uz.gka.tapyoutest.domain.repository.PointsCache
 import uz.gka.tapyoutest.domain.usecase.GetPointsUseCase
 import uz.gka.tapyoutest.domain.usecase.SaveChartUseCase
@@ -24,4 +25,5 @@ interface AppComponent {
     fun getPointsUseCase(): GetPointsUseCase
     fun saveChartUseCase(): SaveChartUseCase
     fun pointsCache(): PointsCache
+    fun inputValidator(): InputValidator
 }

@@ -19,6 +19,7 @@ import uz.gka.tapyoutest.data.repository.ScopedChartSaver
 import uz.gka.tapyoutest.data.repository.RoomPointsCache
 import uz.gka.tapyoutest.data.local.database.AppDatabase
 import uz.gka.tapyoutest.data.local.dao.PointDao
+import uz.gka.tapyoutest.domain.validator.InputValidator
 import uz.gka.tapyoutest.domain.repository.ChartSaver
 import uz.gka.tapyoutest.domain.repository.PointsCache
 import uz.gka.tapyoutest.domain.repository.PointsRepository
@@ -97,4 +98,8 @@ class AppModule(private val application: App) {
     @Provides
     @Singleton
     fun providePointRepository(pointDao: PointDao): PointsCache = RoomPointsCache(pointDao)
+
+    @Provides
+    @Reusable
+    fun provideInputValidator(): InputValidator = InputValidator()
 }
