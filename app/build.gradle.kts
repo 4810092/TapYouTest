@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.androidx.navigation.safeargs.kotlin)
     alias(libs.plugins.kotlin.kapt)
-    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -49,6 +48,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":domain"))
+    implementation(project(":data"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -65,7 +66,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui)
     androidTestImplementation(libs.androidx.navigation.navigation.testing)
 
-    // Retrofit и Gson
+    // Retrofit and Gson
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 

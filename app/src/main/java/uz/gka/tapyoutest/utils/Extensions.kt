@@ -2,11 +2,13 @@ package uz.gka.tapyoutest.utils
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.view.View
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
+import java.io.ByteArrayOutputStream
 import kotlin.properties.ReadOnlyProperty
 
 
@@ -31,4 +33,12 @@ fun WindowInsetsCompat.safeInsets(): Insets {
     } else {
         Insets.NONE
     }
+}
+
+fun Bitmap.toPngBytes(): ByteArray {
+    val stream = ByteArrayOutputStream()
+    if (!compress(Bitmap.CompressFormat.PNG, 100, stream)) {
+        throw IllegalStateException("Bitmap compression failed")
+    }
+    return stream.toByteArray()
 }

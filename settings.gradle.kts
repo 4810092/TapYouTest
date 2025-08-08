@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "TapYouTest"
-include(":app")
+include(":app", ":domain", ":data")

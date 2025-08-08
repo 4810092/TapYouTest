@@ -24,6 +24,7 @@ import uz.gka.tapyoutest.R
 import uz.gka.tapyoutest.databinding.FragmentResultBinding
 import uz.gka.tapyoutest.domain.model.Point
 import uz.gka.tapyoutest.utils.isDarkTheme
+import uz.gka.tapyoutest.utils.toPngBytes
 import uz.gka.tapyoutest.utils.viewBinding
 
 class ResultFragment : Fragment(R.layout.fragment_result) {
@@ -42,7 +43,7 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                submitUiAction(ResultUiAction.SaveChart(binding.lcPoints.chartBitmap))
+                submitUiAction(ResultUiAction.SaveChart(binding.lcPoints.chartBitmap.toPngBytes()))
             } else {
                 showToast(R.string.result_permission_denied)
             }
@@ -60,14 +61,14 @@ class ResultFragment : Fragment(R.layout.fragment_result) {
 
     private fun checkPermissionAndSave() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            submitUiAction(ResultUiAction.SaveChart(binding.lcPoints.chartBitmap))
+            submitUiAction(ResultUiAction.SaveChart(binding.lcPoints.chartBitmap.toPngBytes()))
         } else {
             val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
             if (ContextCompat.checkSelfPermission(
                     requireContext(), permission
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                submitUiAction(ResultUiAction.SaveChart(binding.lcPoints.chartBitmap))
+                submitUiAction(ResultUiAction.SaveChart(binding.lcPoints.chartBitmap.toPngBytes()))
             } else {
                 requestStoragePermissionLauncher.launch(permission)
             }

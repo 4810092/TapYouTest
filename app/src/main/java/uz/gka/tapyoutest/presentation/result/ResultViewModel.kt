@@ -1,6 +1,5 @@
 package uz.gka.tapyoutest.presentation.result
 
-import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -47,14 +46,14 @@ class ResultViewModel @Inject constructor(
 
     fun handleUiAction(action: ResultUiAction) {
         when (action) {
-            is ResultUiAction.SaveChart -> saveChart(action.chartBitmap)
+            is ResultUiAction.SaveChart -> saveChart(action.chartData)
         }
     }
 
-    private fun saveChart(chartBitmap: Bitmap) {
+    private fun saveChart(chartData: ByteArray) {
         viewModelScope.launch {
             runCatching {
-                withContext(Dispatchers.IO) { saveChartUseCase(chartBitmap) }
+                withContext(Dispatchers.IO) { saveChartUseCase(chartData) }
             }.onSuccess { result ->
                 val effect = when (result) {
                     is ChartSaveResult.Legacy -> ResultEffect.SavedIn(result.filePath)
