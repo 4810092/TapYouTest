@@ -1,79 +1,137 @@
 package uz.gka.tapyoutest.presentation.main
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.isVisible
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collect
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
-import uz.gka.tapyoutest.databinding.FragmentMainBinding
-import uz.gka.tapyoutest.utils.viewBinding
 
-class MainFragment : Fragment(R.layout.fragment_main) {
-
-    private val binding by viewBinding(FragmentMainBinding::bind)
+class MainFragment : Fragment() {
 
     private val viewModel by viewModels<MainViewModel> {
         App.component.getViewModelFactory()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initListeners()
-        initObservers()
-    }
-
-    private fun submitUiAction(action: MainUiAction) {
-        viewModel.handleUiAction(action)
-    }
-
-    private fun initListeners() = with(binding) {
-        btnGo.setOnClickListener {
-            submitUiAction(MainUiAction.LoadPoints(etCount.text.toString()))
-        }
-        etCount.setOnEditorActionListener { _, _, _ ->
-            btnGo.performClick()
-            true
-        }
-        flProgress.setOnClickListener { }
-    }
-
-    private fun initObservers() {
-        viewModel.effect.onEach { onEffect(it) }.launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    private fun onEffect(effect: MainEffect) {
-        when (effect) {
-            is MainEffect.InvalidNumber -> showInvalidNumberError()
-            is MainEffect.Loading -> onLoading(effect.show)
-            is MainEffect.PointsLoaded -> onPointsLoaded()
-            is MainEffect.PointsLoadingError -> onPointsLoadingError(effect.message)
-            MainEffect.Initial -> Unit
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setContent {
+            MainScreen(
+                viewModel = viewModel,
+                onNavigate = { navigateToResult() }
+            )
         }
     }
 
-    private fun onLoading(show: Boolean) = with(binding) {
-        flProgress.isVisible = show
-        etCount.isEnabled = !show
-        btnGo.isEnabled = !show
-    }
-
-    private fun onPointsLoadingError(message: String?) {
-        val existMessage = message ?: getString(R.string.main_points_load_error)
-        Toast.makeText(requireContext(), existMessage, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showInvalidNumberError() {
-        binding.etCount.error = getString(R.string.main_invalid_number)
-    }
-
-    private fun onPointsLoaded() {
+    private fun navigateToResult() {
         val action = MainFragmentDirections.actionMainToResult()
         findNavController().navigate(action)
+    }
+}
+
+@Composable
+private fun MainScreen(
+    viewModel: MainViewModel,
+    onNavigate: () -> Unit
+) {
+    val context = LocalContext.current
+    var count by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MainEffect.InvalidNumber -> errorText = context.getString(R.string.main_invalid_number)
+                is MainEffect.Loading -> isLoading = effect.show
+                is MainEffect.PointsLoaded -> onNavigate()
+                is MainEffect.PointsLoadingError -> {
+                    val message = effect.message ?: context.getString(R.string.main_points_load_error)
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+                MainEffect.Initial -> Unit
+            }
+        }
+    }
+
+    fun submit() {
+        viewModel.handleUiAction(MainUiAction.LoadPoints(count))
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp, vertical = 20.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.main_info),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            OutlinedTextField(
+                value = count,
+                onValueChange = {
+                    count = it
+                    errorText = null
+                },
+                label = { Text(stringResource(R.string.main_number_hint)) },
+                isError = errorText != null,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { submit() }),
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (errorText != null) {
+                Text(
+                    text = errorText!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Spacer(modifier = Modifier.height(40.dp))
+            Button(
+                onClick = { submit() },
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = stringResource(R.string.main_button_go))
+            }
+        }
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
     }
 }
