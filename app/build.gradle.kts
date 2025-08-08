@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace = "uz.gka.tapyoutest"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "uz.gka.tapyoutest"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -42,8 +42,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        jvmToolchain(11)
     }
 }
 
