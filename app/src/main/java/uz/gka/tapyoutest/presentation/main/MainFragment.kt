@@ -6,11 +6,26 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
@@ -22,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import kotlinx.coroutines.flow.collect
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 
@@ -64,13 +78,17 @@ private fun MainScreen(
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is MainEffect.InvalidNumber -> errorText = context.getString(R.string.main_invalid_number)
+                is MainEffect.InvalidNumber -> errorText =
+                    context.getString(R.string.main_invalid_number)
+
                 is MainEffect.Loading -> isLoading = effect.show
                 is MainEffect.PointsLoaded -> onNavigate()
                 is MainEffect.PointsLoadingError -> {
-                    val message = effect.message ?: context.getString(R.string.main_points_load_error)
+                    val message =
+                        effect.message ?: context.getString(R.string.main_points_load_error)
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
+
                 MainEffect.Initial -> Unit
             }
         }

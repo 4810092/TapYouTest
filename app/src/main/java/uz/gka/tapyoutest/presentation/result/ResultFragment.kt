@@ -158,7 +158,7 @@ private fun ResultScreen(
                 chart.legend.textColor = textColor
                 chart.xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
-                    textColor = textColor
+                    this.textColor = textColor
                 }
                 chart.axisLeft.textColor = textColor
                 chart.axisRight.textColor = textColor
