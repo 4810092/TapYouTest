@@ -7,7 +7,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -44,9 +43,7 @@ import uz.gka.tapyoutest.utils.toPngBytes
 @Composable
 fun ResultScreen() {
     val context = LocalContext.current
-    val viewModel: ResultViewModel = remember {
-        ViewModelProvider(context as AppCompatActivity, App.component.getViewModelFactory())[ResultViewModel::class.java]
-    }
+    val viewModel: ResultViewModel = viewModel(factory = App.component.getViewModelFactory())
 
     val state by viewModel.state.collectAsState(ResultState.Initial)
     val chartHolder = remember { mutableStateOf<LineChart?>(null) }

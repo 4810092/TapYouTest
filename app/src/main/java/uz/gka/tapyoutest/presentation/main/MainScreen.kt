@@ -1,7 +1,6 @@
 package uz.gka.tapyoutest.presentation.main
 
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 
@@ -40,9 +39,7 @@ fun MainScreen(
     onNavigate: () -> Unit
 ) {
     val context = LocalContext.current
-    val viewModel: MainViewModel = remember {
-        ViewModelProvider(context as AppCompatActivity, App.component.getViewModelFactory())[MainViewModel::class.java]
-    }
+    val viewModel: MainViewModel = viewModel(factory = App.component.getViewModelFactory())
 
     var count by remember { mutableStateOf("") }
     val uiState by viewModel.state.collectAsState(MainState())
