@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.androidx.navigation.safeargs.kotlin)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.compose)
 }
@@ -18,9 +17,6 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-    }
-    viewBinding {
-        enable = true
     }
     buildFeatures {
         buildConfig = true
@@ -59,7 +55,6 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.navigation.compose)
@@ -68,9 +63,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
 
     // Retrofit and Gson
     implementation(libs.retrofit)

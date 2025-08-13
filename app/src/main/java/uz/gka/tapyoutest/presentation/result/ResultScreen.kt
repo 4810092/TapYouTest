@@ -4,107 +4,61 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import kotlinx.coroutines.flow.collect
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 import uz.gka.tapyoutest.utils.isDarkTheme
 import uz.gka.tapyoutest.utils.toPngBytes
 
-class ResultFragment : Fragment() {
-
-    private val viewModel by viewModels<ResultViewModel> {
-        App.component.getViewModelFactory()
-    }
-
-    private lateinit var requestStoragePermissionLauncher: ActivityResultLauncher<String>
-    private var pendingChartBytes: ByteArray? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requestStoragePermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                pendingChartBytes?.let { submitUiAction(ResultUiAction.SaveChart(it)) }
-            } else {
-                showToast(R.string.result_permission_denied)
-            }
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = ComposeView(requireContext()).apply {
-        setContent {
-            ResultScreen(
-                viewModel = viewModel,
-                onSaveClick = { bytes -> checkPermissionAndSave(bytes) }
-            )
-        }
-    }
-
-    private fun submitUiAction(action: ResultUiAction) {
-        viewModel.handleUiAction(action)
-    }
-
-    private fun checkPermissionAndSave(bytes: ByteArray) {
-        pendingChartBytes = bytes
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            submitUiAction(ResultUiAction.SaveChart(bytes))
-        } else {
-            val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
-            if (ContextCompat.checkSelfPermission(requireContext(), permission) == PackageManager.PERMISSION_GRANTED) {
-                submitUiAction(ResultUiAction.SaveChart(bytes))
-            } else {
-                requestStoragePermissionLauncher.launch(permission)
-            }
-        }
-    }
-
-    private fun showToast(resId: Int) = showToast(getString(resId))
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-}
-
 @Composable
-private fun ResultScreen(
-    viewModel: ResultViewModel,
-    onSaveClick: (ByteArray) -> Unit
-) {
+fun ResultScreen() {
     val context = LocalContext.current
-    val state by viewModel.state.collectAsState( ResultState.Initial )
+    val viewModel: ResultViewModel = remember {
+        ViewModelProvider(context as AppCompatActivity, App.component.getViewModelFactory())[ResultViewModel::class.java]
+    }
 
+    val state by viewModel.state.collectAsState(ResultState.Initial)
     val chartHolder = remember { mutableStateOf<LineChart?>(null) }
+    val pendingChartBytes = remember { mutableStateOf<ByteArray?>(null) }
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            pendingChartBytes.value?.let { viewModel.handleUiAction(ResultUiAction.SaveChart(it)) }
+        } else {
+            Toast.makeText(context, context.getString(R.string.result_permission_denied), Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -122,15 +76,29 @@ private fun ResultScreen(
         ResultState.Initial -> emptyList()
     }
 
+    fun checkPermissionAndSave(bytes: ByteArray) {
+        pendingChartBytes.value = bytes
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            viewModel.handleUiAction(ResultUiAction.SaveChart(bytes))
+        } else {
+            val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+            if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) {
+                viewModel.handleUiAction(ResultUiAction.SaveChart(bytes))
+            } else {
+                launcher.launch(permission)
+            }
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        androidx.compose.foundation.lazy.LazyColumn(
+        LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
         ) {
             items(points.size) { index ->
                 val point = points[index]
-                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.Start) {
                     Text(text = point.x.toString(), modifier = Modifier.weight(1f))
                     Text(text = point.y.toString(), modifier = Modifier.weight(1f))
                 }
@@ -172,7 +140,7 @@ private fun ResultScreen(
         )
         Button(
             onClick = {
-                chartHolder.value?.let { onSaveClick(it.chartBitmap.toPngBytes()) }
+                chartHolder.value?.let { checkPermissionAndSave(it.chartBitmap.toPngBytes()) }
             },
             modifier = Modifier.align(Alignment.End)
         ) {

@@ -1,10 +1,7 @@
 package uz.gka.tapyoutest.presentation.main
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,52 +19,31 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 
-class MainFragment : Fragment() {
-
-    private val viewModel by viewModels<MainViewModel> {
-        App.component.getViewModelFactory()
-    }
-
-    var onNavigateToResult: (() -> Unit)? = null
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = ComposeView(requireContext()).apply {
-        setContent {
-            MainScreen(
-                viewModel = viewModel,
-                onNavigate = { onNavigateToResult?.invoke() }
-            )
-        }
-    }
-}
-
 @Composable
-private fun MainScreen(
-    viewModel: MainViewModel,
+fun MainScreen(
     onNavigate: () -> Unit
 ) {
     val context = LocalContext.current
+    val viewModel: MainViewModel = remember {
+        ViewModelProvider(context as AppCompatActivity, App.component.getViewModelFactory())[MainViewModel::class.java]
+    }
+
     var count by remember { mutableStateOf("") }
     val uiState by viewModel.state.collectAsState(MainState())
     var errorText by remember { mutableStateOf<String?>(null) }

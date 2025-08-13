@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         setupStatusBar()
         setContent {
             val navController = rememberNavController()
-            MainScreen(navController = navController)
+            MainNavHost(navController = navController)
         }
         setupContentView()
     }
