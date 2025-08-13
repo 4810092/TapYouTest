@@ -11,9 +11,6 @@ import uz.gka.tapyoutest.domain.model.PointsCount
 import uz.gka.tapyoutest.domain.repository.PointsCache
 import uz.gka.tapyoutest.domain.usecase.GetPointsUseCase
 import uz.gka.tapyoutest.domain.validator.InputValidator
-import uz.gka.tapyoutest.presentation.main.MainEffect.Loading
-import uz.gka.tapyoutest.presentation.main.MainEffect.PointsLoaded
-import uz.gka.tapyoutest.presentation.main.MainEffect.PointsLoadingError
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
@@ -22,14 +19,17 @@ class MainViewModel @Inject constructor(
     private val pointsCache: PointsCache
 ) : ViewModel() {
 
-    private val _effect = MutableStateFlow<MainEffect>(MainEffect.Initial)
+    private val _state = MutableStateFlow(MainState())
+    val state: Flow<MainState> by lazy { _state }
+
+    private val _effect = MutableSharedFlow<MainEffect>(replay = 0)
     val effect: Flow<MainEffect> by lazy { _effect }
 
     private var pointsLoadingJob: Job? = null
 
-    private suspend fun emitEffect(effect: MainEffect) {
-        _effect.emit(effect)
-    }
+    private suspend fun emitState(state: MainState) = _state.emit(state)
+
+    private suspend fun emitEffect(effect: MainEffect) = _effect.emit(effect)
 
     private fun launchEffect(effect: MainEffect) = viewModelScope.launch {
         emitEffect(effect)
@@ -51,17 +51,16 @@ class MainViewModel @Inject constructor(
     private fun loadPoints(count: Int) {
         if (pointsLoadingJob?.isActive == true) pointsLoadingJob?.cancel()
         pointsLoadingJob = viewModelScope.launch {
-            emitEffect(Loading(true))
+            emitState(MainState(isLoading = true))
             runCatching {
                 getPointsUseCase(PointsCount(count))
             }.onSuccess {
                 pointsCache.save(it)
-                emitEffect(PointsLoaded)
+                emitEffect(MainEffect.PointsLoaded)
             }.onFailure {
-                emitEffect(PointsLoadingError(it.message))
+                emitEffect(MainEffect.PointsLoadingError(it.message))
             }
-//            emitEffect(Loading(false))
-//            emitEffect(MainEffect.Initial)
+            emitState(MainState(isLoading = false))
         }
     }
 }

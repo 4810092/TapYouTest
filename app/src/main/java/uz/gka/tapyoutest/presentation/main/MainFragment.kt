@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,7 +69,7 @@ private fun MainScreen(
 ) {
     val context = LocalContext.current
     var count by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+    val uiState by viewModel.state.collectAsState(MainState())
     var errorText by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
@@ -76,16 +77,12 @@ private fun MainScreen(
             when (effect) {
                 is MainEffect.InvalidNumber -> errorText =
                     context.getString(R.string.main_invalid_number)
-
-                is MainEffect.Loading -> isLoading = effect.show
                 is MainEffect.PointsLoaded -> onNavigate()
                 is MainEffect.PointsLoadingError -> {
                     val message =
                         effect.message ?: context.getString(R.string.main_points_load_error)
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
-
-                MainEffect.Initial -> Unit
             }
         }
     }
@@ -93,6 +90,8 @@ private fun MainScreen(
     fun submit() {
         viewModel.handleUiAction(MainUiAction.LoadPoints(count))
     }
+
+    val isLoading = uiState.isLoading
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
