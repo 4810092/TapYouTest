@@ -60,7 +60,7 @@ class MainViewModel @Inject constructor(
             }.onFailure {
                 emitEffect(PointsLoadingError(it.message))
             }
-            emitEffect(Loading(false))
+//            emitEffect(Loading(false))
 //            emitEffect(MainEffect.Initial)
         }
     }

@@ -2,27 +2,31 @@ package uz.gka.tapyoutest.ui
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.compose.rememberNavController
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.fragment.app.FragmentContainerView
-import uz.gka.tapyoutest.R
 import uz.gka.tapyoutest.utils.isDarkTheme
 import uz.gka.tapyoutest.utils.safeInsets
+import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         enableEdgeToEdge()
         setupStatusBar()
+        setContent {
+            val navController = rememberNavController()
+            MainScreen(navController = navController)
+        }
         setupContentView()
     }
 
     private fun setupContentView() {
-        val rootView = findViewById<FragmentContainerView>(R.id.nav_host_fragment)
+        val rootView = findViewById<View>(android.R.id.content)
 
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
             val insetTypes = WindowInsetsCompat.Type.systemBars() or

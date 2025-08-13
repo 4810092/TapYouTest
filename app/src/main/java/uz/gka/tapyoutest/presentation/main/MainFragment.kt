@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import uz.gka.tapyoutest.App
 import uz.gka.tapyoutest.R
 
@@ -46,6 +45,8 @@ class MainFragment : Fragment() {
         App.component.getViewModelFactory()
     }
 
+    var onNavigateToResult: (() -> Unit)? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -54,14 +55,9 @@ class MainFragment : Fragment() {
         setContent {
             MainScreen(
                 viewModel = viewModel,
-                onNavigate = { navigateToResult() }
+                onNavigate = { onNavigateToResult?.invoke() }
             )
         }
-    }
-
-    private fun navigateToResult() {
-        val action = MainFragmentDirections.actionMainToResult()
-        findNavController().navigate(action)
     }
 }
 
