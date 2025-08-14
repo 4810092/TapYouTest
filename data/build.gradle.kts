@@ -25,4 +25,5 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.javax.inject)
+    implementation(libs.kotlinx.coroutines.core)
 }
